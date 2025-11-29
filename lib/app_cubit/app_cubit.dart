@@ -19,6 +19,11 @@ class AppCubit extends Cubit<AppState> {
   BluetoothCharacteristic? m1Char;
   BluetoothCharacteristic? m2Char;
   BluetoothCharacteristic? m3Char;
+
+  BluetoothCharacteristic? m1Char2;
+  BluetoothCharacteristic? m2Char2;
+  BluetoothCharacteristic? m3Char2;
+
   double motor1Speed = 0;
   double motor2Speed = 0;
   double motor3Speed = 0;
@@ -61,7 +66,10 @@ class AppCubit extends Cubit<AppState> {
     var subscription = FlutterBluePlus.onScanResults.listen((results) {
       for (ScanResult r in results) {
         print("result name: $r");
-        if (r.device.advName == "VibratorMotorControl") {
+        if (r.device.advName == "right") {
+          connectToDevice(r.device);
+        }
+        if (r.device.advName == "left") {
           connectToDevice(r.device);
         }
       }
@@ -74,7 +82,7 @@ class AppCubit extends Cubit<AppState> {
 
     await FlutterBluePlus.startScan(
         withServices: [Guid("180D")],
-        withNames: ["VibratorMotorControl"],
+        withNames: ["right", "left"],
         timeout: const Duration(seconds: 4));
 
     await FlutterBluePlus.isScanning.where((val) => val == false).first;
@@ -124,15 +132,30 @@ class AppCubit extends Cubit<AppState> {
       if (service.uuid.toString() == "19b10000-e8f2-537e-4f6c-d104768a1214") {
         for (BluetoothCharacteristic characteristic
             in service.characteristics) {
-          switch (characteristic.uuid.toString()) {
+          switch (characteristic.uuid.toString().toLowerCase()) {
             case "19b10001-e8f2-537e-4f6c-d104768a1214":
-              m1Char = characteristic;
+              if(device.advName == "right"){
+                m1Char = characteristic;
+              }
+              else{
+                m1Char2 = characteristic;
+              }
               break;
             case "19b10002-e8f2-537e-4f6c-d104768a1214":
-              m2Char = characteristic;
+              if(device.advName == "right"){
+                m2Char = characteristic;
+              }
+              else{
+                m2Char2 = characteristic;
+              }
               break;
             case "19b10003-e8f2-537e-4f6c-d104768a1214":
-              m3Char = characteristic;
+              if(device.advName == "right"){
+                m3Char = characteristic;
+              }
+              else{
+                m3Char2 = characteristic;
+              }
               break;
           }
         }
@@ -215,16 +238,19 @@ class AppCubit extends Cubit<AppState> {
       switch (motor) {
         case 1:
           if (m1Char != null) await m1Char!.write(bytes);
+          if (m1Char2 != null) await m1Char2!.write(bytes);
           motor1Speed = value;
           refresh();
           break;
         case 2:
           if (m2Char != null) await m2Char!.write(bytes);
+          if (m2Char2 != null) await m2Char2!.write(bytes);
           motor2Speed = value;
           refresh();
           break;
         case 3:
           if (m3Char != null) await m3Char!.write(bytes);
+          if (m3Char2 != null) await m3Char2!.write(bytes);
           motor3Speed = value;
           refresh();
           break;

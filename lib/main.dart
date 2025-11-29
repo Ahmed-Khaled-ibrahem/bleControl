@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:vibratormotorcontrol/view/layout.dart';
 import 'app_cubit/app_cubit.dart';
 import 'get_it/get_it.dart';
+import 'view/layout.dart';
 
 void main() {
   getItSetup();
   runApp(const MyApp());
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
